@@ -5,7 +5,7 @@ from unidecode import unidecode
 import spacy
 from spacy.symbols import ORTH
 #ressources
-from resources.filtered_tags_set import filtered_tags_set
+# from resources.filtered_tags_set import filtered_tags_set
 import streamlit as st
 import pickle
 
@@ -37,7 +37,7 @@ def _lemmatization(text,
     doc = _nlp(text)
     new_text = []
     for token in doc:
-        if str(token) in filtered_tags_set:
+        if str(token) in tags:
             new_text.append(str(token))
         elif token.pos_ in allowed_postags :
             new_text.append(token.lemma_)
@@ -55,22 +55,21 @@ def _strip_text(txt:str) -> str:
     res = res.lower()
     return res
 
-def _verbose_write(txt: str) -> None:
+def _verbose_write(headline: str, question: str) -> None:
     if g_verbose:
-        st.write(txt)
+        st.write(f'**{headline}**')
+        st.code(question)
 
 def clean_question(question:str, verbose=False) -> str:
     global g_verbose
     g_verbose = verbose
-    _verbose_write('before :')
-    _verbose_write(question)
+    _verbose_write('Input :', question)
     question = _strip_text(question)
-    _verbose_write('stripped question :')
-    _verbose_write(question)
+    _verbose_write('Stripped question :', question)
     question = _lemmatization(question)
-    _verbose_write('lemmatized question :')
-    _verbose_write(question)
+    _verbose_write('Lemmatized question :', question)
     question = ' '.join([token for token in question.split(' ') if token in vocabulary])
-    _verbose_write('filtered question :')
-    _verbose_write(question)
+    _verbose_write('Word filtered question :', question)
+    if verbose: 
+       st.divider()
     return question
